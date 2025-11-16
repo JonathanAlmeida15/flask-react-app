@@ -1,31 +1,29 @@
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Client
-from .forms import ClientForm
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+from django.contrib.auth.forms import AuthenticationForm
 
-class ClientListView(LoginRequiredMixin, ListView):
-    model = Client
-    template_name = 'clients/client_list.html'
-    context_object_name = 'clients'
-    paginate_by = 10
+def login_view(request):
+    form = AuthenticationForm()
 
-class ClientDetailView(LoginRequiredMixin, DetailView):
-    model = Client
-    template_name = 'clients/client_detail.html'
-    context_object_name = 'client'
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
 
-class ClientCreateView(LoginRequiredMixin, CreateView):
-    model = Client
-    form_class = ClientForm
-    template_name = 'clients/client_form.html'
+        if form.is_valid():
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password")
 
-class ClientUpdateView(LoginRequiredMixin, UpdateView):
-    model = Client
-    form_class = ClientForm
-    template_name = 'clients/client_form.html'
+            user = authenticate(username=username, password=password)
 
-class ClientDeleteView(LoginRequiredMixin, DeleteView):
-    model = Client
-    template_name = 'clients/client_confirm_delete.html'
-    success_url = reverse_lazy('clients:list')
+            if user is not None:
+                login(request, user)
+                return redirect("dashboard:home")
+        else:
+            messages.error(request, "Usuário ou senha incorretos.")
+
+    return render(request, "accounts/login.html", {"form": form})
+
+
+def logout_view(request):
+    logout(request)
+    return redirect("accounts:login")

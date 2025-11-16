@@ -1,12 +1,9 @@
 from django.urls import path
-from . import views
+from .views import login_view, logout_view
 
-app_name = 'clients'
+app_name = "accounts"
 
 urlpatterns = [
-    path('', views.ClientListView.as_view(), name='list'),
-    path('create/', views.ClientCreateView.as_view(), name='create'),
-    path('<int:pk>/', views.ClientDetailView.as_view(), name='detail'),
-    path('<int:pk>/edit/', views.ClientUpdateView.as_view(), name='edit'),
-    path('<int:pk>/delete/', views.ClientDeleteView.as_view(), name='delete'),
+    path('login/', login_view, name='login'),
+    path('logout/', logout_view, name='logout'),
 ]
